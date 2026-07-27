@@ -24,7 +24,6 @@ El agente utiliza **RAG** (Retrieval-Augmented Generation)
 
 1. Clonar el repo y entrar a la carpeta
 2. Crear el entorno virtual:
-   ```bash
    python -m venv venv
 
 

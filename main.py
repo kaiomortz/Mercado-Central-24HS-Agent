@@ -10,6 +10,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.documents import Document
 import pandas as pd
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # ========== 1. CONFIGURACIÓN ==========
@@ -59,7 +60,7 @@ llm = ChatGroq(
 )
 print("✅ Groq conectado")
 
-# ========== 5. CADENA RAG (sin RetrievalQA) ==========
+# ========== 5. CADENA RAG ==========
 template = """Responde la pregunta basándote ÚNICAMENTE en el siguiente contexto.
 Si la respuesta no está en el contexto, di "No encontré información sobre eso en los documentos".
 
@@ -74,7 +75,6 @@ prompt = ChatPromptTemplate.from_template(template)
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# Esta es la magia: busca documentos similares, arma el prompt y le pregunta a Gemini
 rag_chain = (
     {
         "context": vectorstore.as_retriever(search_kwargs={"k": 4}) | format_docs,
@@ -93,7 +93,6 @@ class Question(BaseModel):
 
 @app.post("/preguntar")
 async def preguntar(q: Question):
-    # Buscamos los documentos usados para dar las fuentes
     docs_usados = vectorstore.similarity_search(q.pregunta, k=4)
     respuesta = rag_chain.invoke(q.pregunta)
     
@@ -103,8 +102,5 @@ async def preguntar(q: Question):
     }
 
 @app.get("/")
-async def root():
-    return {
-        "mensaje": "Agente Mercado Central 24h activo",
-        "instruccion": "Hacé un POST a /preguntar con JSON {'pregunta': 'tu pregunta'}"
-    }
+async def serve_chat():
+    return FileResponse("static/index.html")
