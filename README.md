@@ -41,7 +41,7 @@ pip install -r requirements.txt
 GROQ_API_KEY= API_KEY_ACA
 
 ## CORRER LA APLICACION
-uvicorn main:app --reload
+uvicorn main:app --host 127.0.0.1 --port 8000
 
 ## URL PARA REALIZAR LAS CONSULTAS CUANDO ESTE CORRIENDO
 http://127.0.0.1:8000/docs
